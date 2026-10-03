@@ -1,6 +1,6 @@
 import os
 import threading
-from flask import Flask, send_from_directory, request
+from flask import Flask, send_from_directory
 import telebot
 
 TOKEN = os.environ.get("BOT_TOKEN")
@@ -13,6 +13,8 @@ app = Flask(__name__)
 
 VIDEO_FOLDER = "videos"
 os.makedirs(VIDEO_FOLDER, exist_ok=True)
+
+BASE_URL = "https://telegram-video-bot-gazx.onrender.com"
 
 
 @bot.message_handler(commands=["start"])
@@ -35,11 +37,12 @@ def receive_video(message):
         downloaded_file = bot.download_file(file_info.file_path)
 
         file_name = f"{message.video.file_unique_id}.mp4"
+        file_path = os.path.join(VIDEO_FOLDER, file_name)
 
-        with open(os.path.join(VIDEO_FOLDER, file_name), "wb") as f:
+        with open(file_path, "wb") as f:
             f.write(downloaded_file)
 
-        video_url = request.host_url.rstrip("/") + "/videos/" + file_name
+        video_url = f"{BASE_URL}/videos/{file_name}"
 
         bot.reply_to(
             message,
